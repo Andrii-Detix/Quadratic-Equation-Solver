@@ -2,6 +2,7 @@
 using QuadraticEquationSolver.Controllers.Abstractions;
 using QuadraticEquationSolver.Controllers.InputControllers.Errors;
 using QuadraticEquationSolver.QuadraticEquation.Coefficients;
+using QuadraticEquationSolver.QuadraticEquation.Coefficients.Errors;
 
 namespace QuadraticEquationSolver.Controllers.InputControllers;
 
@@ -11,9 +12,9 @@ public class InputCoefficientController : ICoefficientsController
     {
         Dictionary<string, double> inputCoefficients = new Dictionary<string, double>
         {
-            { "a", default },
-            { "b", default },
-            { "c", default }
+            { "a", 0 },
+            { "b", 0 },
+            { "c", 0 }
         };
 
         foreach (var key in inputCoefficients.Keys)
@@ -21,12 +22,12 @@ public class InputCoefficientController : ICoefficientsController
             inputCoefficients[key] = GetCoefficient(key);
         }
 
-        var coefs = new QuadraticEquationCoefficients(
+        var coefficients = new QuadraticEquationCoefficients(
             inputCoefficients["a"],
             inputCoefficients["b"],
             inputCoefficients["c"]);
 
-        return coefs;
+        return coefficients;
     }
 
     private double GetCoefficient(string coefName)
@@ -36,9 +37,32 @@ public class InputCoefficientController : ICoefficientsController
             Console.Write($"Enter {coefName}: ");
             string input = Console.ReadLine();
 
-            double coefficient = double.Parse(input, CultureInfo.InvariantCulture);
+            bool isValid = double.TryParse(input, CultureInfo.InvariantCulture, out double coefficient);
+            if (!isValid)
+            {
+                ShowErrors(new InvalidNumberException(input));
+                continue;
+            }
+
+            if (coefName == "a" && coefficient == 0)
+            {
+                ShowErrors(new CoeffAZeroValueException());
+                continue;
+            }
 
             return coefficient;
         }
+    }
+
+    private void ShowErrors(Exception exception)
+    {
+        const string errorTitle = "Error: ";
+        ConsoleColor originalColor = Console.ForegroundColor;
+        ConsoleColor errorColor = ConsoleColor.Red;
+
+        Console.ForegroundColor = errorColor;
+        Console.Write(errorTitle);
+        Console.ForegroundColor = originalColor;
+        Console.WriteLine(exception.Message);
     }
 }
