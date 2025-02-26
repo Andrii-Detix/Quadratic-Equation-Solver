@@ -1,19 +1,21 @@
 ﻿using System.Globalization;
 using QuadraticEquationSolver.Controllers.Abstractions;
 using QuadraticEquationSolver.Controllers.InputControllers.Errors;
+using QuadraticEquationSolver.Presenters.Abstractions;
 using QuadraticEquationSolver.QuadraticEquation.Coefficients;
+using QuadraticEquationSolver.QuadraticEquation.Coefficients.Errors;
 
 namespace QuadraticEquationSolver.Controllers.InputControllers;
 
-public class InputCoefficientController : ICoefficientsController
+public class InputCoefficientsController(IErrorPresenter errorPresenter) : ICoefficientsController
 {
     public QuadraticEquationCoefficients GetData()
     {
         Dictionary<string, double> inputCoefficients = new Dictionary<string, double>
         {
-            { "a", default },
-            { "b", default },
-            { "c", default }
+            { "a", 0 },
+            { "b", 0 },
+            { "c", 0 }
         };
 
         foreach (var key in inputCoefficients.Keys)
@@ -21,12 +23,12 @@ public class InputCoefficientController : ICoefficientsController
             inputCoefficients[key] = GetCoefficient(key);
         }
 
-        var coefs = new QuadraticEquationCoefficients(
+        var coefficients = new QuadraticEquationCoefficients(
             inputCoefficients["a"],
             inputCoefficients["b"],
             inputCoefficients["c"]);
 
-        return coefs;
+        return coefficients;
     }
 
     private double GetCoefficient(string coefName)
@@ -36,7 +38,18 @@ public class InputCoefficientController : ICoefficientsController
             Console.Write($"Enter {coefName}: ");
             string input = Console.ReadLine();
 
-            double coefficient = double.Parse(input, CultureInfo.InvariantCulture);
+            bool isValid = double.TryParse(input, CultureInfo.InvariantCulture, out double coefficient);
+            if (!isValid)
+            {
+                errorPresenter.Present(new InvalidNumberException(input));
+                continue;
+            }
+
+            if (coefName == "a" && coefficient == 0)
+            {
+                errorPresenter.Present(new CoeffAZeroValueException());
+                continue;
+            }
 
             return coefficient;
         }
