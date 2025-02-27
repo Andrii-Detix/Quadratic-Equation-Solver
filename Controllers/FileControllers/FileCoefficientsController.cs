@@ -60,7 +60,7 @@ public class FileCoefficientsController : ICoefficientsController
     private bool IsValidFileFormat(string fileContent)
     {
         const string regexPattern =
-            @"^([0-9]+|[0-9]+\.[0-9]+)\s([0-9]+|[0-9]+\.[0-9]+)\s([0-9]+|[0-9]+\.[0-9]+)(\n|\r\n)$";
+            @"^-?([0-9]+|[0-9]+\.[0-9]+)\s-?([0-9]+|[0-9]+\.[0-9]+)\s-?([0-9]+|[0-9]+\.[0-9]+)(\n|\r\n)$";
         bool isValid = Regex.IsMatch(fileContent, regexPattern);
 
         return isValid;
