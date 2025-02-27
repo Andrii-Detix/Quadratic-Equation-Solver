@@ -26,7 +26,7 @@ public class FileCoefficientsController : ICoefficientsController
     {
         string content = string.Empty;
 
-        if (!File.Exists(_filePath)) throw new FileNotFoundException(_filePath);
+        if (!File.Exists(_filePath)) throw new FileNotExistsException(_filePath);
 
         using (var reader = new StreamReader(_filePath))
         {
