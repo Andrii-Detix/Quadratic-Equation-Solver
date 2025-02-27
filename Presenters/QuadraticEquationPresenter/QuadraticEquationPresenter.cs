@@ -35,7 +35,9 @@ public class QuadraticEquationPresenter : IQuadraticEquationPresenter
 
     private string SerializeCoefficient(double coefficient)
     {
-        return $"({Math.Abs(coefficient)})";
+        double absCoefficient = Math.Abs(coefficient);
+        string str = absCoefficient.ToString(CultureInfo.InvariantCulture);
+        return $"({str})";
     }
 
     private char GetCoefficientSign(double coefficient)
@@ -53,13 +55,21 @@ public class QuadraticEquationPresenter : IQuadraticEquationPresenter
         roots.Append("Amount of roots: ").Append(count).AppendLine();
         foreach (var root in data.Roots)
         {
+            double rounded = RoundDoubleNumber(root);
+            
             roots.Append(RootChar).Append(index).Append(": ")
-                .Append(root.ToString(CultureInfo.InvariantCulture))
+                .Append(rounded.ToString(CultureInfo.InvariantCulture))
                 .AppendLine();
 
             index++;
         }
 
         return roots.ToString();
+    }
+
+    private double RoundDoubleNumber(double value)
+    {
+        const int decimalPlaces = 6;
+        return Math.Round(value, decimalPlaces);
     }
 }
